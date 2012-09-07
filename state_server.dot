@@ -1,0 +1,45 @@
+digraph State {
+	style = filled;
+	color = lightgrey;
+	label = "Server flow chart";
+	rankdir = TB;
+
+	node [shape = box];
+	"not playing";
+	"send OK";
+	"create game\nsend READY";
+	"playing game";
+	"send LO";
+	"send HI";
+	"send CORR";
+
+	node	[ shape = diamond
+		, style = filled
+		, color = lightgrey
+	];
+	"recv HELLO";
+	"recv START";
+	"low guess";
+	"high guess";
+	"correct guess";
+
+	"not playing"	-> 
+		"recv HELLO"	-> "send OK";
+
+	"send OK"	->
+		"recv START"	-> "create game\nsend READY";
+	"create game\nsend READY" -> "playing game";
+
+	"playing game"	->
+		"low guess"	-> "send LO";
+	"send LO"	-> "playing game";
+
+	"playing game"	->
+		"high guess"-> "send HI";
+	"send HI"	-> "playing game";
+
+	"playing game"	->
+		"correct guess"	-> "send CORR";
+	"send CORR"	-> "not playing";
+}
+
