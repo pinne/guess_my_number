@@ -18,15 +18,15 @@ import java.net.*;
 import java.io.*;
 
 public class Client {
-	
+
 	private int port = 4950;
 	private InetAddress iaddr;
 	private DatagramSocket socket;
 
 	public Client(String server, int port) throws IOException {
-		iaddr = InetAddress.getByName(server);
+		this.iaddr = InetAddress.getByName(server);
 		this.port = port;
-		socket = new DatagramSocket();
+		this.socket = new DatagramSocket();
 		handshake();
 	}
 
@@ -37,7 +37,7 @@ public class Client {
 				new BufferedReader(new InputStreamReader(System.in));
 
 		while (running) {
-			byte[] data = new byte[1024];
+			System.out.printf("<client> ");
 			String sentence = new String(inFromUser.readLine());
 
 			if (sentence.equalsIgnoreCase("QUIT")) {
@@ -45,29 +45,30 @@ public class Client {
 				System.exit(0);
 			} else if (sentence.equalsIgnoreCase("HANDSHAKE")) {
 				handshake();
+			} else {
+				send(sentence);
+
+				byte[] data = new byte[1024];
+				DatagramPacket receivePacket = new DatagramPacket(data, data.length);
+				try {
+					socket.receive(receivePacket);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				String modifiedSentence = new String(receivePacket.getData());
+				System.out.println("<server> " + modifiedSentence);
 			}
-
-			data = sentence.getBytes();
-			DatagramPacket sendPacket = new DatagramPacket(data, data.length, iaddr, port);
-			socket.send(sendPacket);
-
-			data = new byte[1024];
-			DatagramPacket receivePacket = new DatagramPacket(data, data.length);
-			try {
-				socket.receive(receivePacket);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			String modifiedSentence = new String(receivePacket.getData());
-			System.out.println("<server> " + modifiedSentence);
 		}
 		socket.close();
 	}
 
 	private void handshake() {
+		System.out.printf("<client> ");
+		System.out.println("HELLO");
 		send("HELLO");
-		
+
+		// Receive packet
 		byte[] data = new byte[1024];
 		DatagramPacket packet = new DatagramPacket(data, data.length);
 		try {
@@ -77,24 +78,28 @@ public class Client {
 		}
 		String modifiedSentence = new String(packet.getData());
 		System.out.println("<server> " + modifiedSentence);
-		
-		send("START");
-		packet = new DatagramPacket(data, data.length);
-		try {
-			socket.receive(packet);
-		} catch (IOException e) {
-			e.printStackTrace();
+
+		if (modifiedSentence.trim().equals("OK")) {
+			System.out.printf("<client> ");
+			System.out.println("START");
+			send("START");
+			packet = new DatagramPacket(data, data.length);
+			try {
+				socket.receive(packet);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			modifiedSentence = new String(packet.getData());
+			System.out.println("<server> " + modifiedSentence);
+		} else {
+			System.out.println("Handshake failed");
 		}
-		modifiedSentence = new String(packet.getData());
-		System.out.println("<server> " + modifiedSentence);
 	}
 
 	/**
 	 * Send a datagram packet.
 	 */
 	public void send(String msg) {
-		System.out.println("<client> " + msg);
-		
 		if (msg.equalsIgnoreCase("QUIT"))
 			System.exit(0);
 
