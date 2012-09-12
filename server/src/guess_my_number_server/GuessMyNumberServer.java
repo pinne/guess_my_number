@@ -14,11 +14,11 @@ public class GuessMyNumberServer {
 	static boolean running = true;
 	static boolean handshake = false;
 	static boolean playing = false;
-	static int LOWEST  = 0;
-	static int HIGHEST = 100;
 	
 	/**
-	 * Handles connections and state of the server
+	 * Try to establish a connection with the client, then
+	 * play a round of Guess my number.
+	 *
 	 */
 	public static void main(String[] args) {
 		while (true) {

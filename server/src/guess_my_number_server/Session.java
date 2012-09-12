@@ -107,7 +107,7 @@ public class Session {
 		}
 		// Fail!
 		send("Handshake failed");
-		close();
+		//close();
 		return;
 	}
 
@@ -131,6 +131,8 @@ public class Session {
 
 	public void close() {
 		connection = false;
+		if (isConnected())
+			send("DISCONNECTED");
 		clientSocket.close();
 	}
 }
