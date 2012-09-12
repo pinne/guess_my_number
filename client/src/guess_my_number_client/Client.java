@@ -102,6 +102,7 @@ public class Client {
 			System.out.println("<server> " + modifiedSentence);
 		} else {
 			System.out.println("Handshake failed");
+			System.exit(-1);
 		}
 	}
 

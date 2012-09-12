@@ -42,12 +42,13 @@ public class Session {
 				clientSocket.receive(packet);
 			} catch (SocketTimeoutException ste) {
 				send("Disconnected because of timeout");
+				close();
 				throw ste;
 			}
 
 			if (!authorizedClient(packet)) {
 				System.out.println("Illegal connection attempt");
-				send("BUSY");
+				busyReply(packet);
 			} else {
 				// Extract the part of the byte array containing the message
 				String message = new String(packet.getData(), 0, packet.getLength()); 
@@ -73,7 +74,7 @@ public class Session {
 		} catch (SocketTimeoutException ste) {
 			throw ste;
 		}
-
+		
 		this.clientAddr = packet.getAddress();
 		this.clientPort = packet.getPort();
 
@@ -107,7 +108,6 @@ public class Session {
 		}
 		// Fail!
 		send("Handshake failed");
-		//close();
 		return;
 	}
 
@@ -124,6 +124,20 @@ public class Session {
 			System.out.println("IOException: " + ie.toString());
 		}
 	}
+	
+	private void busyReply(DatagramPacket packet) {
+		InetAddress replyAddr = packet.getAddress();
+		int replyPort = packet.getPort();
+		String replyMessage = "BUSY";
+		byte[] data = replyMessage.getBytes();
+		DatagramPacket replyPacket = new DatagramPacket(data, data.length, replyAddr, replyPort);
+		try {
+			clientSocket.send(replyPacket);
+		} catch (IOException ie) {
+			System.out.println("IOException: " + ie.toString());
+		}
+	}
+
 
 	public boolean isConnected() {
 		return connection;
