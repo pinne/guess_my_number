@@ -19,28 +19,30 @@ import java.io.*;
 
 public class Client {
 
-	private int port = 4950;
+	private static final String DEFAULT_SERVER = "localhost";
+	private static final int DEFAULT_SERVER_PORT = 4950;
 	private InetAddress iaddr;
 	private DatagramSocket socket;
 
 	public Client(String server, int port) throws IOException {
 		this.iaddr = InetAddress.getByName(server);
-		this.port = port;
 		this.socket = new DatagramSocket();
 		handshake();
 	}
 
 	private void playing() throws IOException {
-		System.out.println("Playing game");
 		boolean running = true;
 		BufferedReader inFromUser =
 				new BufferedReader(new InputStreamReader(System.in));
 
+		socket.setSoTimeout(20000);
+		
 		while (running) {
 			System.out.printf("<client> ");
 			String sentence = new String(inFromUser.readLine());
 
 			if (sentence.equalsIgnoreCase("QUIT")) {
+				send("QUIT");
 				System.out.println("Client terminated.");
 				System.exit(0);
 			} else if (sentence.equalsIgnoreCase("HANDSHAKE")) {
@@ -72,7 +74,14 @@ public class Client {
 		byte[] data = new byte[1024];
 		DatagramPacket packet = new DatagramPacket(data, data.length);
 		try {
+			socket.setSoTimeout(2000);
+		} catch (SocketException e1) {
+			e1.printStackTrace();
+		}
+		try {
 			socket.receive(packet);
+		} catch (SocketTimeoutException ste) {
+			System.out.printf(".");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -100,11 +109,8 @@ public class Client {
 	 * Send a datagram packet.
 	 */
 	public void send(String msg) {
-		if (msg.equalsIgnoreCase("QUIT"))
-			System.exit(0);
-
 		byte[] data = msg.getBytes();
-		DatagramPacket packet = new DatagramPacket(data, data.length, iaddr, port);
+		DatagramPacket packet = new DatagramPacket(data, data.length, iaddr, DEFAULT_SERVER_PORT);
 		try {
 			socket.send(packet);
 		} catch (IOException ie) {
@@ -115,7 +121,7 @@ public class Client {
 	public static void main(String[] args) throws IOException {
 		Client client = null;
 		try {
-			client = new Client("localhost", 4950);
+			client = new Client(DEFAULT_SERVER, DEFAULT_SERVER_PORT);
 		} catch (Exception e) {
 			System.out.println("Exception while initializing, " + e.toString());
 		}
