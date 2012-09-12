@@ -47,13 +47,16 @@ public class Session {
 			}
 
 			if (!authorizedClient(packet)) {
-				System.out.println("Illegal connection attempt");
+				System.out.println("Illegal connection attempt from " + packet.getAddress());
 				busyReply(packet);
 			} else {
 				// Extract the part of the byte array containing the message
 				String message = new String(packet.getData(), 0, packet.getLength()); 
 				System.out.printf("Packet contains \"" + message + "\"");
 				System.out.println(" from " + clientAddr.getHostName());
+				
+				if (message.equalsIgnoreCase("QUIT"))
+					break;
 
 				send(game.parse(message));
 			}
@@ -138,15 +141,18 @@ public class Session {
 		}
 	}
 
-
 	public boolean isConnected() {
 		return connection;
 	}
 
+	/**
+	 * Close current connection.
+	 */
 	public void close() {
-		connection = false;
 		if (isConnected())
 			send("DISCONNECTED");
+		
+		connection = false;
 		clientSocket.close();
 	}
 }
