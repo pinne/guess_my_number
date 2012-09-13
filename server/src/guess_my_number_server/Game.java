@@ -14,7 +14,18 @@ public class Game {
 	public Game(Session client) {
 		genSecretNumber(LOWEST, HIGHEST);
 	}
+	
+	/**
+	 * Generate a secret number between lowest and highest constants.
+	 */
+	private void genSecretNumber(int from, int to) {
+		secretNumber = RANDOM.nextInt(to - from) + 1;
+		System.out.println("My secret number is " + secretNumber + ".");
+	}
 
+	/**
+	 * Parse the guess and return an answer.
+	 */
 	public String parse(String guess) {
 		if (guess.equalsIgnoreCase("QUIT")) {
 			return "GOOD BYE";
@@ -49,17 +60,12 @@ public class Game {
 		}
 	}
 
-	public int getPosition() {
+	private int getPosition() {
 		return guess - secretNumber;
 	}
 
 	public void setGuess(int guess) {
 		this.guess = guess;
-	}
-
-	public void genSecretNumber(int from, int to) {
-		secretNumber = RANDOM.nextInt(to - from) + 1;
-		System.out.println("My secret number is " + secretNumber + ".");
 	}
 
 	public boolean isCorrect() {

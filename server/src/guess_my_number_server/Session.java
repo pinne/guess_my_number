@@ -29,42 +29,9 @@ public class Session {
 	}
 
 	/**
-	 * Receive message from client and put it into the game engine,
-	 * then send the result from the game engine to client.
+	 * Establish a connection with a connecting client.
+	 * 
 	 */
-	public void playGame() throws IOException, SocketTimeoutException {
-		while (!game.isCorrect()) {
-			// Receive message and request answer from game engine
-			byte[] data = new byte[MAXBUF];
-			DatagramPacket packet = new DatagramPacket(data, data.length);
-			clientSocket.setSoTimeout(20000);
-			try {
-				clientSocket.receive(packet);
-			} catch (SocketTimeoutException ste) {
-				send("Disconnected because of timeout");
-				close();
-				throw ste;
-			}
-
-			if (!authorizedClient(packet)) {
-				System.out.println("Illegal connection attempt from " + packet.getAddress());
-				busyReply(packet);
-			} else {
-				// Extract the part of the byte array containing the message
-				String message = new String(packet.getData(), 0, packet.getLength()); 
-				System.out.printf("Packet contains \"" + message + "\"");
-				System.out.println(" from " + clientAddr.getHostName());
-				
-				if (message.equalsIgnoreCase("QUIT"))
-					break;
-
-				send(game.parse(message));
-			}
-		}
-		close();
-		connection = false;
-	}
-
 	public void handshake() throws IOException, SocketTimeoutException {
 		connection = false;
 		this.clientSocket = new DatagramSocket(SERVER_PORT);
@@ -115,6 +82,43 @@ public class Session {
 	}
 
 	/**
+	 * Receive message from client and put it into the game engine,
+	 * then send the result from the game engine to client.
+	 */
+	public void playGame() throws IOException, SocketTimeoutException {
+		while (!game.isCorrect()) {
+			// Receive message and request answer from game engine
+			byte[] data = new byte[MAXBUF];
+			DatagramPacket packet = new DatagramPacket(data, data.length);
+			clientSocket.setSoTimeout(20000);
+			try {
+				clientSocket.receive(packet);
+			} catch (SocketTimeoutException ste) {
+				send("Disconnected because of timeout");
+				close();
+				throw ste;
+			}
+
+			if (!authorizedClient(packet)) {
+				System.out.println("Illegal connection attempt from " + packet.getAddress());
+				replyBusy(packet);
+			} else {
+				// Extract the part of the byte array containing the message
+				String message = new String(packet.getData(), 0, packet.getLength()); 
+				System.out.printf("Packet contains \"" + message + "\"");
+				System.out.println(" from " + clientAddr.getHostName());
+				
+				if (message.equalsIgnoreCase("QUIT"))
+					break;
+
+				send(game.parse(message));
+			}
+		}
+		close();
+		connection = false;
+	}
+
+	/**
 	 * Send a datagram packet.
 	 */
 	public void send(String msg) {
@@ -128,7 +132,10 @@ public class Session {
 		}
 	}
 	
-	private void busyReply(DatagramPacket packet) {
+	/**
+	 * Extract the sender from the packet and reply busy.
+	 */
+	private void replyBusy(DatagramPacket packet) {
 		InetAddress replyAddr = packet.getAddress();
 		int replyPort = packet.getPort();
 		String replyMessage = "BUSY";
