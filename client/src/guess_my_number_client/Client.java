@@ -1,18 +1,15 @@
-package guess_my_number_client;
-
-/** A simple implementation of a (UDP) client handling
- *  parallell and asynchronous input (receive) and output (send).
- *  User input (send):
- *  When the user prints a text in a text field a datagram packet 
- *  is sent by the event dispatch thread in the class ClientUDP.
- *  Input from socket (receive):
- *  Datagrams are received by a separate thread in the class Receiver,
- *  and displayded in a text area.
+/**
+ * Guess my number game - Client
  *
- *  Test this client can be tested together with the EchoServerUDP, port 4950.
+ * Communication Systems, HI1032
+ * Lab assignment 3 - Client-Server programming
  *
- *  Usage: java ClientUDP servername
+ * Simon Kers skers@kth.se
+ * Sakib Pathan sakibp@kth.se
+ *                                 KTH STH 2012
  */
+
+package guess_my_number_client;
 
 import java.net.*;
 import java.io.*;
@@ -30,6 +27,9 @@ public class Client {
 		handshake();
 	}
 
+	/**
+	 * Plays a round of guess my number with the server.
+	 */
 	private void playing() throws IOException {
 		boolean running = true;
 		BufferedReader inFromUser =
@@ -57,14 +57,23 @@ public class Client {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-
-				String modifiedSentence = new String(receivePacket.getData());
-				System.out.println("<server> " + modifiedSentence);
+				
+				String plaintext = new String(receivePacket.getData());
+				System.out.println("<server> " + plaintext);
+				
+				if (plaintext.trim().equals("CORR")) {
+					System.out.println("  -!-    Game over");
+					socket.close();
+					return;
+				}
 			}
 		}
 		socket.close();
 	}
 
+	/**
+	 * Perform a handshake with the server to establish a connection.
+	 */
 	private void handshake() {
 		System.out.printf("<client> ");
 		System.out.println("HELLO");
@@ -85,10 +94,10 @@ public class Client {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		String modifiedSentence = new String(packet.getData());
-		System.out.println("<server> " + modifiedSentence);
+		String plaintext = new String(packet.getData());
+		System.out.println("<server> " + plaintext);
 
-		if (modifiedSentence.trim().equals("OK")) {
+		if (plaintext.trim().equals("OK")) {
 			System.out.printf("<client> ");
 			System.out.println("START");
 			send("START");
@@ -98,8 +107,8 @@ public class Client {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			modifiedSentence = new String(packet.getData());
-			System.out.println("<server> " + modifiedSentence);
+			plaintext = new String(packet.getData());
+			System.out.println("<server> " + plaintext);
 		} else {
 			System.out.println("Handshake failed");
 			System.exit(-1);

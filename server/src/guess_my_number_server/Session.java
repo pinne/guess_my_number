@@ -50,7 +50,11 @@ public class Session {
 	 */
 	public void handshake() throws IOException, SocketTimeoutException {
 		connection = false;
+		try {
 		this.clientSocket = new DatagramSocket(SERVER_PORT);
+		} catch (BindException e) {
+			System.err.println(e.toString());
+		}
 
 		byte[] data = new byte[MAXBUF];
 		DatagramPacket packet = new DatagramPacket(data, data.length);
@@ -131,7 +135,6 @@ public class Session {
 			}
 		}
 		close();
-		connection = false;
 	}
 
 	/**
