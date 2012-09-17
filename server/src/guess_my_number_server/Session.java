@@ -1,8 +1,24 @@
+/**
+ * Guess my number game - Server
+ *
+ * Communication Systems, HI1032
+ * Lab assignment 3 - Client-Server programming
+ *
+ * Simon Kers skers@kth.se
+ * Sakib Pathan sakibp@kth.se
+ *                                 KTH STH 2012
+ */
+
 package guess_my_number_server;
 
 import java.io.IOException;
 import java.net.*;
 
+/**
+ * Session has a connection and a game of 'Guess my number'.
+ * Communication with the client is synchronous and the game ends when
+ * the client sends a correct guess.
+ */
 public class Session {
 
 	private DatagramSocket clientSocket = null;

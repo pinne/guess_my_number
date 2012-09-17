@@ -1,7 +1,15 @@
-package guess_my_number_server;
-
 /**
+ * Guess my number game - Server
+ *
+ * Communication Systems, HI1032
+ * Lab assignment 3 - Client-Server programming
+ *
+ * Simon Kers skers@kth.se
+ * Sakib Pathan sakibp@kth.se
+ *                                 KTH STH 2012
  */
+
+package guess_my_number_server;
 
 import java.io.*;
 import java.net.SocketTimeoutException;
@@ -18,12 +26,12 @@ public class GuessMyNumberServer {
 	/**
 	 * Try to establish a connection with the client, then
 	 * play a round of Guess my number.
-	 *
 	 */
 	public static void main(String[] args) {
 		while (true) {
 			Session client = new Session();
 
+			// Try handshake
 			while (client.isConnected() == false) {
 				try {
 					client.handshake();
@@ -35,6 +43,7 @@ public class GuessMyNumberServer {
 					System.exit(-1);
 				}
 			}
+			// Play game
 			if (client.isConnected()) {
 				try {
 					client.playGame();

@@ -1,8 +1,25 @@
+/**
+ * Guess my number game - Server
+ *
+ * Communication Systems, HI1032
+ * Lab assignment 3 - Client-Server programming
+ *
+ * Simon Kers skers@kth.se
+ * Sakib Pathan sakibp@kth.se
+ *                                 KTH STH 2012
+ */
+
 package guess_my_number_server;
 
 import java.util.Random;
 import java.util.StringTokenizer;
 
+/**
+ * A game of guess my number, this has all the game logic.
+ * 
+ * It receives Strings and parses the answer and returns
+ * formatted Strings that can be sent as replies to the client.
+ */
 public class Game {
 
 	private static final Random RANDOM = new Random();	
